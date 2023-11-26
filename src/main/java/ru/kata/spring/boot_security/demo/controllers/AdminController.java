@@ -6,14 +6,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
 import jakarta.validation.Valid;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+
+import java.util.*;
 
 @Controller
 @RequestMapping("/admin")
@@ -63,8 +63,17 @@ public class AdminController {
     }
 
     @PatchMapping("/update/{id}")
-    public String updateUser(@ModelAttribute("user") User user, @PathVariable int id) {
-        userService.updateUser(id, user);
+    public String updateUser(@ModelAttribute("user") @Valid User user, @PathVariable int id,
+                             BindingResult bindingResult,
+                             @RequestParam(value = "roles") String[] selectResult) {
+        if (!bindingResult.hasErrors()) {
+            Set<Role> roles = new HashSet<>();
+            for (String s : selectResult) {
+                roles.add(roleService.getRoleByName(s));
+            }
+            user.setRoles(roles);
+            userService.updateUser(id, user);
+        }
         return "redirect:/admin";
     }
 
