@@ -8,12 +8,13 @@ public interface UserService {
 
     List<User> getAllUsers();
 
-    User getUser(Integer id);
-    User getUserByName(String name);
+    User getUser(int id);
 
-    void saveUser(User person);
+    void saveUser(User user);
 
-    void updateUser(Integer id, User person);
+    void updateUser(int id, User user);
 
-    void deleteUser(Integer id);
+    void deleteUser(int id);
+
+    User findByEmail(String email);
 }

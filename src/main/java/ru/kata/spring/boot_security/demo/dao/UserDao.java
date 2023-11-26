@@ -4,13 +4,15 @@ import java.util.List;
 
 public interface UserDao {
 
-    public List<User> getAllUsers();
+    List<User> getAllUsers();
 
-    public User getUser(int id);
+    User getUser(int id);
 
-    public void saveUser(User user);
+    void saveUser(User user);
 
-    public void updateUser(int id, User user);
+    void updateUser(int id, User user);
 
-    public void deleteUser(int id);
+    void deleteUser(int id);
+
+    User findByEmail(String email);
 }

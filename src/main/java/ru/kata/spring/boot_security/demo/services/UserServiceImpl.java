@@ -1,58 +1,69 @@
 package ru.kata.spring.boot_security.demo.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.dao.UserDao;
 import ru.kata.spring.boot_security.demo.models.User;
-import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 
 import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService, UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final UserDao userDao;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    @Lazy
+    public UserServiceImpl(UserDao userDao, PasswordEncoder passwordEncoder) {
+        this.userDao = userDao;
+        this.passwordEncoder = passwordEncoder;
     }
+
 
     @Override
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userDao.getAllUsers();
     }
 
     @Override
-    public User getUser(Integer id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    public User getUser(int id) {
+        return userDao.getUser(id);
     }
 
-    @Override
-    public User getUserByName(String name) {
-        return userRepository.findUserByName(name)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
-
-    @Override
     @Transactional
+    @Override
     public void saveUser(User user) {
-        userRepository.save(user);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userDao.saveUser(user);
+    }
+
+    @Transactional
+    @Override
+    public void updateUser(int id, User user) {
+        userDao.updateUser(id, user);
+    }
+
+    @Transactional
+    @Override
+    public void deleteUser(int id) {
+        userDao.deleteUser(id);
     }
 
     @Override
-    @Transactional
-    public void updateUser(Integer id, User user) {
-        user.setId(id);
-        userRepository.save(user);
+    public User findByEmail(String email) {
+        return userDao.findByEmail(email);
     }
 
     @Override
-    @Transactional
-    public void deleteUser(Integer id) {
-        userRepository.deleteById(id);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userDao.findByEmail(email);
     }
 }

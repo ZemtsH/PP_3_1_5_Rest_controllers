@@ -2,55 +2,45 @@ package ru.kata.spring.boot_security.demo.init;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import ru.kata.spring.boot_security.demo.models.*;
-import ru.kata.spring.boot_security.demo.repositories.*;
+import ru.kata.spring.boot_security.demo.services.*;
 
-import java.util.Collections;
-import java.util.Optional;
+import javax.annotation.PostConstruct;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
-public class DataInitializer implements CommandLineRunner {
+public class DataInitializer {
 
+    private final UserService userService;
+    private final RoleService roleService;
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Override
-    public void run(String... args) throws Exception {
-        createRoleIfNotExists("ROLE_USER");
-        createRoleIfNotExists("ROLE_ADMIN");
-
-        createUser("Vasya", "Pupkin", "v.pupkin@example.com", "1234567890", "password1", "ROLE_USER");
-        createUser("Petya", "Petushok", "p.petushok@example.com", "9876543210", "password2", "ROLE_USER");
-        createUser("Katya", "Kotik", "k.kotik@example.com", "0123456789", "password3", "ROLE_ADMIN");
+    public DataInitializer(UserService userService, RoleService roleService) {
+        this.userService = userService;
+        this.roleService = roleService;
     }
 
-    private void createUser(String name, String lastName, String email, String phoneNumber, String password, String roleName) {
-        if (userRepository.findUserByName(name) == null) {
-            User user = new User();
-            user.setName(name);
-            user.setLastName(lastName);
-            user.setEmail(email);
-            user.setPhoneNumber(phoneNumber);
-            user.setPassword(password);
+    @PostConstruct
+    public void run() {
+        roleService.addRole(new Role("ADMIN"));
+        roleService.addRole(new Role("USER"));
 
-            Optional<Role> optionalRole = roleRepository.findRoleByName(roleName);
-            Role role = optionalRole.orElseThrow(() -> new RuntimeException("Role not found: " + name));
+        Set<Role> adminRole = new HashSet<>();
+        Set<Role> userRole = new HashSet<>();
+        Set<Role> allRoles = new HashSet<>();
 
-            user.setRole(Collections.singleton(role));
+        adminRole.add(roleService.getRoleById(1L));
+        userRole.add(roleService.getRoleById(2L));
+        allRoles.add(roleService.getRoleById(1L));
+        allRoles.add(roleService.getRoleById(2L));
 
-            userRepository.save(user);
-        }
-    }
-
-    private void createRoleIfNotExists(String name) {
-        Optional<Role> existingRoleOptional = roleRepository.findRoleByName(name);
-        if (existingRoleOptional.isEmpty()) {
-            Role role = new Role(name);
-            roleRepository.save(role);
-        }
+        userService.saveUser(new User("Vasya", "Pupkin", "v.pupkin@example.com", "1234567890", "pass1",adminRole));
+        userService.saveUser(new User("Petya", "Petushok", "p.petushok@example.com", "9876543210", "pass2", userRole));
+        userService.saveUser(new User("Katya", "Kotik", "k.kotik@example.com", "0123456789", "pass3",allRoles));
+        userService.saveUser(new User("user", "user", "user@test.com", "1234567890", "user",userRole));
+        userService.saveUser(new User("admin", "admin", "admin@test.com", "9876543210", "admin", adminRole));
     }
 }
