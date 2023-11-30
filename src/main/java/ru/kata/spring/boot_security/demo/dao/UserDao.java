@@ -6,13 +6,13 @@ public interface UserDao {
 
     List<User> getAllUsers();
 
-    User getUser(int id);
+    User getUser(long id);
 
     void saveUser(User user);
 
-    void updateUser(int id, User user);
+    void updateUser(long id, User user);
 
-    void deleteUser(int id);
+    void deleteUser(long id);
 
     User findByEmail(String email);
 }

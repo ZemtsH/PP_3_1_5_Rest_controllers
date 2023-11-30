@@ -7,7 +7,7 @@ import java.util.List;
 public interface RoleDao {
     List<Role> getAllRoles();
 
-    Role getRoleById(Long id);
+    Role getRoleById(long id);
 
     Role getRoleByName(String role);
 

@@ -20,8 +20,8 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    @Column(name = "user_id")
+    private long id;
 
 
     @NotBlank(message = "Name is required")
@@ -77,7 +77,7 @@ public class User implements UserDetails {
                 '}';
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
