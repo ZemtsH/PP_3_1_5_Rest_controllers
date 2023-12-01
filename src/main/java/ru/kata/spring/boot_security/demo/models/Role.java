@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.models;
 
+import com.fasterxml.jackson.core.format.MatchStrength;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
@@ -13,7 +14,7 @@ public class Role implements GrantedAuthority {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "role_id")
-    private long id;
+    private Long id;
 
     @Column(name = "role", nullable = false)
     private String role;
@@ -28,7 +29,7 @@ public class Role implements GrantedAuthority {
         this.role = role;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -53,7 +54,7 @@ public class Role implements GrantedAuthority {
     }
 
     @Override
-    public String getAuthority() {
+    public String getAuthority() { // возвращает имя роли
         return getRole();
     }
 

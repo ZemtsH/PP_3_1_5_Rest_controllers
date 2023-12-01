@@ -14,8 +14,8 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid d-flex justify-content-between">
         <div class="d-flex">
-            <h3><span class="text-white" th:text="${user.getName()}" style="font-weight: bold;"></span></h3>
-            <h3><span class="text-white" style="display: inline;">&nbsp;with roles:&nbsp;</span></h3>
+            <h3><span class="text-white" th:text="${user.getUsername()}" style="font-weight: bold;"></span></h3>
+            <h3><span class="text-white" style="display: inline">&nbsp;with roles:&nbsp;</span></h3>
             <h3> <span class="text-white" th:each="role: ${user.getRoles()}" th:text="${role.role + ' '}"
                        style="display: inline;"></span></h3>
         </div>
@@ -56,7 +56,7 @@
                         <form class="offset-md-4 col-md-4 mt-1 mb-1"
                               th:align="center"
                               th:action="@{/admin/new}"
-                              th:object="${user}"
+                              th:object="${newUser}"
                               method="post">
 
                             <label for="name"><b>Name</b></label>
@@ -77,8 +77,8 @@
                             <label for="roles"><b>Role</b></label>
                             <select multiple class="form-control form-control-sm"
                                     id="roles" name="roles" size="2" required>
-                                <option value="USER">USER</option>
-                                <option value="ADMIN">ADMIN</option>
+                                <option value="ROLE_USER">ROLE_USER</option>
+                                <option value="ROLE_ADMIN">ROLE_ADMIN</option>
                             </select>
                             <input type="hidden" th:field="*{id}"/>
                             <br>

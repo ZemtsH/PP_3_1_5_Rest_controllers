@@ -1,18 +1,14 @@
 package ru.kata.spring.boot_security.demo.models;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import java.util.Objects;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
-
-import javax.persistence.*;
 
 @Entity
 @Table(name = "users")
@@ -24,25 +20,28 @@ public class User implements UserDetails {
     private long id;
 
 
+    @Pattern(regexp = "^[a-zA-Zа-яА-Я]+$", message = "Name should contains only letters")
     @NotBlank(message = "Name is required")
-    @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
-    @Column(name = "name")
+    @Size(min = 1, max = 30, message = "Name must be between 2 and 30 characters")
+    @Column(name = "name", nullable = false)
     private String name;
 
+    @Pattern(regexp = "^[a-zA-Zа-яА-Я]+$", message = "Surname should contains only letters")
     @NotBlank(message = "Last name is required")
-    @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
-    @Column(name = "last_name")
+    @Size(min = 1, max = 30, message = "Last name must be between 2 and 30 characters")
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
     @Email(message = "Invalid email format")
-    @Column(name = "email", unique = true)
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
     @Pattern(regexp = "[0-9]{10}", message = "Phone number must be 10 digits")
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
     @NotBlank(message = "Password is required")
+    @Size(min = 1, max = 300, message = "Password should be between 3 and 300 characters")
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -81,7 +80,7 @@ public class User implements UserDetails {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -97,20 +96,19 @@ public class User implements UserDetails {
         return lastName;
     }
 
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
     public String getEmail() {
         return email;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
     public void setPhoneNumber(String phoneNumber) {
@@ -136,8 +134,9 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return null;
+        return email;
     }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

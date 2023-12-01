@@ -13,8 +13,8 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid d-flex justify-content-between">
         <div class="d-flex">
-            <h3><span class="text-white" th:text="${user.getName()}" style="font-weight: bold;"></span></h3>
-            <h3><span class="text-white" style="display: inline;">&nbsp;with roles:&nbsp;</span></h3>
+            <h3><span class="text-white" th:text="${user.getUsername()}" style="font-weight: bold;"></span></h3>
+            <h3><span class="text-white" style="display: inline">&nbsp;with roles:&nbsp;</span></h3>
             <h3> <span class="text-white" th:each="role: ${user.getRoles()}" th:text="${role.role + ' '}"
                        style="display: inline;"></span></h3>
         </div>
@@ -44,7 +44,7 @@
                 <div class="tab-content" id="tabContent">
                     <ul class="nav nav-tabs">
                         <a class="nav-link active" data-toggle="tab">Users Table</a>
-                        <a class="nav-link" data-toggle="tab" th:href="@{/admin/new}">New User</a>
+                        <a class="nav-link" data-toggle="tab" th:href="@{/admin/add}">New User</a>
                     </ul>
                     <div class="card">
                         <div class="card-header">
@@ -85,7 +85,7 @@
                                                                 data-bs-dismiss="modal"
                                                                 aria-label="Close"></button>
                                                     </div>
-                                                    <form th:action="@{/admin/update/{id}(id=${user.id})}"
+                                                    <form th:action="@{/admin/{id}(id=${user.id})}"
                                                           th:object="${user}" th:method="patch">
                                                         <input type="hidden" name="userId" th:value="${user.id}"/>
                                                         <div class="modal-body col-md text-center">
@@ -148,8 +148,8 @@
                                                             <label for="roles"><b>Role</b></label>
                                                             <select multiple class="form-control form-control-sm"
                                                                     id="roles" name="roles" size="2" required>
-                                                                <option value="USER">USER</option>
-                                                                <option value="ADMIN">ADMIN</option>
+                                                                <option value="ROLE_USER">ROLE_USER</option>
+                                                                <option value="ROLE_ADMIN">ROLE_ADMIN</option>
                                                             </select>
                                                         </div>
                                                         <div class="modal-footer">
@@ -181,7 +181,7 @@
                                                                 aria-label="Close"></button>
                                                     </div>
                                                     <form class="modal-body col-md text-center"
-                                                          th:action="@{/admin/delete/{id}(id=${user.id})}"
+                                                          th:action="@{/admin/{id}(id=${user.id})}"
                                                           th:method="DELETE">
                                                         <div class="modal-body col-md">
                                                             <label for="id1"><b>ID</b></label>

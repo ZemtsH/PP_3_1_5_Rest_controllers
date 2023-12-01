@@ -11,8 +11,7 @@ import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
-import jakarta.validation.Valid;
-
+import javax.validation.Valid;
 import java.util.*;
 
 @Controller
@@ -26,16 +25,20 @@ public class AdminController {
         this.userService = userService;
         this.roleService = roleService;
     }
+    String redirect = "redirect:/admin/";
 
-    @GetMapping
+
+    @GetMapping("/")
     public String getAdminPage(@AuthenticationPrincipal User user, Model model) {
         model.addAttribute("users", userService.getAllUsers());
         model.addAttribute("user", user);
+        model.addAttribute("roles", roleService.getAllRoles());
         return "admin/admin";
     }
 
-    @GetMapping("/new")
-    public String newUser(@ModelAttribute User user, Model model){
+    @GetMapping("/add")
+    public String newUserPage(@AuthenticationPrincipal User user, Model model) {
+        model.addAttribute("newUser", new User());
         model.addAttribute("user", user);
         model.addAttribute("roles", roleService.getAllRoles());
         return "admin/new";
@@ -43,28 +46,21 @@ public class AdminController {
 
     @PostMapping("/new")
     public String createUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult,
-                             @RequestParam("roles") String[] selectResult) {
-        if (bindingResult.hasErrors())
-            return "admin/admin";
-
-        for (String s : selectResult) {
-            user.setRoles(Collections.singleton(roleService.getRoleByName(s)));
+                             @RequestParam(value = "roles") String[] selectResult) {
+        if (bindingResult.hasErrors()) {
+            return "admin/new";
         }
-
+        Set<Role> roles = new HashSet<>();
+        for (String s : selectResult) {
+            roles.add(roleService.getRoleByName(s));
+        }
+        user.setRoles(roles);
         userService.saveUser(user);
-        return "redirect:/admin";
-
+        return redirect;
     }
 
-    @GetMapping("/edit/{id}")
-    public String editUser(@PathVariable int id, Model model) {
-        model.addAttribute("user", userService.getUser(id));
-        return "admin/edit";
-    }
-
-    @PatchMapping("/update/{id}")
-    public String updateUser(@ModelAttribute("user") @Valid User user, @PathVariable int id,
-                             BindingResult bindingResult,
+    @PatchMapping("/{id}")
+    public String updateUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult,
                              @RequestParam(value = "roles") String[] selectResult) {
         if (!bindingResult.hasErrors()) {
             Set<Role> roles = new HashSet<>();
@@ -72,14 +68,14 @@ public class AdminController {
                 roles.add(roleService.getRoleByName(s));
             }
             user.setRoles(roles);
-            userService.updateUser(id, user);
+            userService.updateUser(user);
         }
-        return "redirect:/admin";
+        return redirect;
     }
 
-    @DeleteMapping("/delete/{id}")
-    public String deleteUser(@PathVariable int id) {
+    @DeleteMapping("/{id}")
+    public String deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        return "redirect:/admin";
+        return redirect;
     }
 }
