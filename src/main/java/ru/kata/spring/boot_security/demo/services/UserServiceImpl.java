@@ -12,6 +12,7 @@ import ru.kata.spring.boot_security.demo.dao.UserDao;
 import ru.kata.spring.boot_security.demo.models.User;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,7 +23,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     @Lazy
-    public UserServiceImpl(UserDao userDao, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserDao userDao, @Lazy PasswordEncoder passwordEncoder) {
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
     }
@@ -34,7 +35,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User getUser(Long id) {
+    public User getUser(long id) {
         return userDao.getUser(id);
     }
 
@@ -47,26 +48,29 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Transactional
     @Override
-    public void updateUser(User user) {
-        if (!user.getPassword().equals(userDao.getUser(user.getId()).getPassword())) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
-        userDao.updateUser(user);
+    public void updateUser(long id, User updatedUser) {
+        updatedUser.setId(id);
+        updatedUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+        userDao.saveUser(updatedUser);
     }
 
     @Transactional
     @Override
-    public void deleteUser(Long id) {
+    public void deleteUser(long id) {
         userDao.deleteUser(id);
     }
 
     @Override
-    public User findByEmail(String email) {
-        return userDao.findByEmail(email);
+    public User findByEmail(String username) {
+        return userDao.findByEmail(username);
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userDao.findByEmail(email);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<User> user = Optional.ofNullable(userDao.findByEmail(username));
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException("User not found!");
+        }
+        return user.get();
     }
 }

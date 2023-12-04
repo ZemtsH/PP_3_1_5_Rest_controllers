@@ -1,7 +1,6 @@
 package ru.kata.spring.boot_security.demo.configs;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -10,8 +9,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-
-@Configuration
 @EnableWebSecurity
 public class  WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final SuccessUserHandler successUserHandler;
@@ -24,31 +21,31 @@ public class  WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(getPasswordEncoder());
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http    .formLogin()
-                .loginPage("/user/login")
+        http    .csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/login","/", "/index").permitAll()
+                .antMatchers("/admin/**", "/adminApi/**").hasRole("ADMIN")
+                .antMatchers("/userApi/**", "/user/**").hasAnyRole("USER", "ADMIN")
+                .anyRequest().authenticated()
+                .and()
+                .formLogin()
+                .loginPage("/login")
+                .loginProcessingUrl("/process_login")
                 .successHandler(successUserHandler)
-                .loginProcessingUrl("/login")
-                .usernameParameter("f_login")
-                .passwordParameter("f_password")
-                .permitAll();
-
-        http    .authorizeRequests()
-                .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/user/login","/", "/index").permitAll()
-                .anyRequest().hasAnyRole("ADMIN", "USER")
+                .failureUrl("/login?error")
                 .and()
                 .logout()
-                .permitAll();
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login");
     }
 
     @Bean
-    public PasswordEncoder getPasswordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }

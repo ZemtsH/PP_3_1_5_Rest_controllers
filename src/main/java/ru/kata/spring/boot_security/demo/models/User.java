@@ -65,17 +65,6 @@ public class User implements UserDetails {
     }
 
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "name='" + name + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", roles='" + roles + '\'' +
-                '}';
-    }
-
     public long getId() {
         return id;
     }
@@ -115,11 +104,6 @@ public class User implements UserDetails {
         this.phoneNumber = phoneNumber;
     }
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
     public void setPassword(String password) {
         this.password = password;
     }
@@ -132,16 +116,25 @@ public class User implements UserDetails {
         this.roles = roles;
     }
 
-    @Override
-    public String getUsername() {
-        return email;
+    public String getShortRole() {
+        return roles.toString().substring(1, roles.toString().length() - 1);
     }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return getRoles();
     }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -160,6 +153,17 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "name='" + name + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", roles='" + roles + '\'' +
+                '}';
     }
 
     @Override

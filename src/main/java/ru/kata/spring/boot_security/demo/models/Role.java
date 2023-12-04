@@ -1,9 +1,11 @@
 package ru.kata.spring.boot_security.demo.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.format.MatchStrength;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -16,11 +18,12 @@ public class Role implements GrantedAuthority {
     @Column(name = "role_id")
     private Long id;
 
-    @Column(name = "role", nullable = false)
+    @Column(name = "role", nullable = false, unique = true)
     private String role;
 
-    @ManyToMany(mappedBy = "roles")
-    private Set<User> users;
+    @JsonIgnore
+    @ManyToMany(mappedBy = "roles", cascade = CascadeType.ALL)
+    private Set<User> users = new HashSet<>();
 
     public Role() {
     }
@@ -54,13 +57,13 @@ public class Role implements GrantedAuthority {
     }
 
     @Override
-    public String getAuthority() { // возвращает имя роли
+    public String getAuthority() {
         return getRole();
     }
 
     @Override
     public String toString() {
-        return role;
+        return role.replace("ROLE_", "");
     }
 
     @Override

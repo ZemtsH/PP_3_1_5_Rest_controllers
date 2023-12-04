@@ -13,4 +13,6 @@ public interface RoleDao {
     Role getRoleByName(String role);
 
     void addRole(Role role);
+
+    void deleteById(Long id);
 }
